@@ -1,0 +1,180 @@
+ <script>
+      const toggleBtn = document.getElementById("toggleCamera");
+      const captureBtn = document.getElementById("captureBtn");
+      const cameraDiv = document.getElementById("cameraContainer");
+      const cameraImg = document.getElementById("esp32cam");
+      const canvas = document.getElementById("snapshotCanvas");
+      const ctx = canvas.getContext("2d");
+      const resultDiv = document.getElementById("predictionResult");
+
+      // Toggle camera visibility
+      toggleBtn.addEventListener("click", () => {
+        if (cameraDiv.style.display === "none") {
+          cameraDiv.style.display = "block";
+          captureBtn.style.display = "inline-block"; // Show capture button
+          toggleBtn.innerText = "Hide Camera";
+          console.log("Camera stream displayed");
+        } else {
+          cameraDiv.style.display = "none";
+          captureBtn.style.display = "none"; // Hide capture button
+          toggleBtn.innerText = "Show Camera";
+          console.log("Camera stream hidden");
+        }
+      });
+
+      // Ensure image is loaded before capturing
+      cameraImg.addEventListener("load", () => {
+        console.log("Camera stream image loaded successfully");
+      });
+
+      // Capture and detect disease
+      captureBtn.addEventListener("click", async () => {
+        console.log("Capture button clicked");
+        resultDiv.innerHTML = "<p>Capturing image...</p>";
+
+        // Check if image is loaded
+        if (!cameraImg.complete || cameraImg.naturalWidth === 0) {
+          console.error("Camera image not loaded");
+          resultDiv.innerHTML = "<p>Error: Camera stream not loaded. Please check the connection.</p>";
+          return;
+        }
+
+        // Draw the current frame to the canvas
+        ctx.drawImage(cameraImg, 0, 0, canvas.width, canvas.height);
+        console.log("Image drawn to canvas");
+
+        // Convert canvas to blob
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            console.error("Failed to create blob from canvas");
+            resultDiv.innerHTML = "<p>Error: Failed to capture image.</p>";
+            return;
+          }
+
+          console.log("Blob created, size:", blob.size);
+          const formData = new FormData();
+          formData.append("file", blob, "captured_image.jpg");
+
+          try {
+            // Send to /predict endpoint
+            console.log("Sending image to /predict");
+            const res = await fetch("/predict", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!res.ok) {
+              throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+
+            const data = await res.json();
+            console.log("Prediction response:", data);
+
+            // Fetch latest sensor data
+            const sensorRes = await fetch("/api/data");
+            if (!sensorRes.ok) {
+              throw new Error(`Sensor data fetch failed! Status: ${sensorRes.status}`);
+            }
+            const sensors = await sensorRes.json();
+            console.log("Sensor data:", sensors);
+
+            const normal = {
+              pH: [5.5, 7.5],
+              soil_moisture: [30, 60],
+              temperature: [15, 30],
+              humidity: [30, 70],
+              iaq: [0, 100],
+              co2: [300, 1000],
+            };
+
+            function getClassColor(value, range) {
+              if (value < range[0] || value > range[1]) return "danger";
+              const margin = (range[1] - range[0]) * 0.2;
+              if (value < range[0] + margin || value > range[1] - margin)
+                return "warn";
+              return "ok";
+            }
+
+            // Build the prediction + sensor card
+            resultDiv.innerHTML = `
+<div id="diseasePredictionContainer" class="disease-container">
+  <!-- Left: Disease + Sensor Data -->
+  <div class="prediction-card">
+    <div id="pdata">
+      <p><strong>Prediction:</strong> ${data.prediction}</p>
+      <p><strong>Confidence:</strong> ${data.confidence}%</p>
+      <img src="${data.image_path}" alt="Plant Image" width="200" />
+    </div>
+    <div id="sdata">
+      <h4>🌿 Sensor Data</h4>
+      <ul>
+        <li class="${getClassColor(sensors.pH, normal.pH)}">pH: ${
+          sensors.pH
+        }</li>
+        <li class="${getClassColor(
+          sensors.soil_moisture,
+          normal.soil_moisture
+        )}">
+          Soil Moisture: ${sensors.soil_moisture}%
+        </li>
+        <li class="${getClassColor(sensors.temperature, normal.temperature)}">
+          Temperature: ${sensors.temperature}°C
+        </li>
+        <li class="${getClassColor(sensors.humidity, normal.humidity)}">
+          Humidity: ${sensors.humidity}%
+        </li>
+        <li class="${getClassColor(sensors.iaq, normal.iaq)}">IAQ: ${
+          sensors.iaq
+        }</li>
+        <li class="${getClassColor(sensors.co2, normal.co2)}">CO₂: ${
+          sensors.co2
+        } ppm</li>
+      </ul>
+    </div>
+  </div>
+  <!-- Right: Recommendations -->
+  <div id="recommendations" class="recommendation-card">
+    <h4>💡 Recommended Actions</h4>
+    <ul id="recommendationList"></ul>
+  </div>
+</div>
+`;
+
+            // Populate recommendations
+            const recommendationList = document.getElementById("recommendationList");
+            recommendationList.innerHTML = "";
+
+            // Sensor-based recommendations
+            if (sensors.soil_moisture < normal.soil_moisture[0])
+              recommendationList.innerHTML +=
+                "<li>💧 Soil is dry, irrigate plants.</li>";
+            if (sensors.soil_moisture > normal.soil_moisture[1])
+              recommendationList.innerHTML +=
+                "<li>🚱 Soil is waterlogged, improve drainage.</li>";
+            if (sensors.pH < normal.pH[0])
+              recommendationList.innerHTML +=
+                "<li>🧂 Soil acidic, add lime.</li>";
+            if (sensors.pH > normal.pH[1])
+              recommendationList.innerHTML +=
+                "<li>🧂 Soil alkaline, add sulfur.</li>";
+            if (sensors.temperature > normal.temperature[1])
+              recommendationList.innerHTML +=
+                "<li>🌡️ High temperature, provide shade/ventilation.</li>";
+            if (sensors.humidity > normal.humidity[1])
+              recommendationList.innerHTML +=
+                "<li>💨 High humidity, improve airflow.</li>";
+
+            // Disease-based recommendations
+            if (data.prediction.toLowerCase().includes("blight"))
+              recommendationList.innerHTML +=
+                "<li>🧴 Detected blight, apply fungicide.</li>";
+            if (data.prediction.toLowerCase().includes("healthy"))
+              recommendationList.innerHTML +=
+                "<li>✅ Plant healthy, maintain care.</li>";
+          } catch (err) {
+            console.error("Error in capture and detect:", err);
+            resultDiv.innerHTML = "<p>Error: Failed to process image. Check console for details.</p>";
+          }
+        }, "image/jpeg", 0.9); // Added quality parameter for smaller file size
+      });
+    </script>

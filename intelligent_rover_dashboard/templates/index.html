@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>🌱 Intelligent Pesticide Sprinkling System</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  </head>
+
+  <body>
+    <section class="dashboard-header">
+      <h1>📊 Welcome to Your Dashboard</h1>
+      <p>Track insights, manage data, and monitor your progress at a glance.</p>
+    </section>
+    <nav class="w-full">
+      <div class="navbar" id="navbar">
+        <!-- Logo -->
+         <div class="flex items-center justify-center py-1 ">
+  <h1 class="text-3xl md:text-3xl font-extrabold text-green-800 tracking-wide">
+    Dr.<span class="text-lime-600">Kissan</span>
+  </h1>
+</div>
+
+
+        <!-- Links -->
+        <div class="links">
+          <a href="http://localhost:5173/Home"><span>Home</span></a>
+          <a href="http://localhost:5173/Problem_Statement"
+            ><span>Problem Statement</span></a
+          >
+          <a href="http://localhost:5173/about-us"><span>About Us</span></a>
+          <a href="http://localhost:5000" target="_blank" class="active"
+            ><span>Dashboard</span></a
+          >
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="http://localhost:5173/contact-us"><span>Contact us</span></a>
+        </div>
+      </div>
+    </nav>
+    <main>
+<h1 class=" text-3xl font-bold text-green-700 mb-6 tracking-wide uppercase">
+  Live Data and Insights
+</h1>
+      <div class="main-sections">
+        <!-- Sensor Data Section -->
+        <section id="sensors">
+<h2 class="text-xl font-semibold mb-4 text-gray-700 border-l-4 border-green-600 pl-3 tracking-wide">
+  📊 Sensor Data
+</h2>          <div class="grid">
+            <div class="card" id="card-ph">
+              pH: <span id="ph">--</span>
+              <div class="range" id="range-ph"></div>
+            </div>
+            <div class="card" id="card-moisture">
+              Soil Moisture: <span id="moisture">--</span>%
+              <div class="range" id="range-moisture"></div>
+            </div>
+            <div class="card" id="card-temp">
+              Temperature: <span id="temp">--</span> °C
+              <div class="range" id="range-temp"></div>
+            </div>
+            <div class="card" id="card-humidity">
+              Humidity: <span id="humidity">--</span>%
+              <div class="range" id="range-humidity"></div>
+            </div>
+            <div class="card" id="card-iaq">
+              IAQ: <span id="iaq">--</span>
+              <div class="range" id="range-iaq"></div>
+            </div>
+            <div class="card" id="card-co2">
+              CO₂: <span id="co2">--</span> ppm
+              <div class="range" id="range-co2"></div>
+            </div>
+          </div>
+        </section>
+        <!-- Plant Health Insights Section -->
+        <section id="analysis">
+          <h2>🌿 Plant Health Insights</h2>
+          <div class="insights-box">
+            <ul id="insights"></ul>
+          </div>
+        </section>
+        <!-- 🌦️ Weather Information -->
+
+<!-- 🌾 Smart Farm Heatmap Dashboard -->
+
+
+
+
+<section id="camera-stream">
+  <h2>📷 Live Camera</h2>
+  <button id="toggleCamera">Show Camera</button>
+
+  <div id="cameraContainer" style="display:none; margin-top:10px;">
+   <img
+  id="esp32cam"
+  src="/camera_feed"
+  width="680"
+  height="520"
+  style="border:2px solid #0f0; border-radius:10px"
+  onerror="this.src='/static/placeholder.jpg'; console.error('Camera stream failed to load');"
+/>
+    <canvas id="snapshotCanvas" width="680" height="520" style="display:none;"></canvas>
+  </div>
+
+  <div id="predictionResult1" style="margin-top:15px; font-size:18px; font-weight:bold;"></div>
+</section>
+   
+
+<section id="rover-status">
+  <h2>🤖 Rover & Treatment Status</h2>
+
+  <!-- Summary Cards -->
+  <div class="status-grid">
+    <div class="card" id="card-location">
+      <h4><i class="fas fa-map-marker-alt"></i> Location</h4>
+      <p id="gps-coords">Loading...</p>
+    </div>
+
+    <div class="card" id="card-battery">
+      <h4><i id="battery-icon" class="fas fa-battery-full"></i> Battery</h4>
+      <p><span id="battery-level">--</span>% (<span id="solar-status">--</span>)</p>
+      <div class="battery-bar">
+        <div class="battery-fill" id="battery-fill"></div>
+      </div>
+    </div>
+
+    <div class="card" id="card-treatment">
+      <h4><i class="fas fa-syringe"></i> Last Action</h4>
+      <p id="last-action">--</p>
+    </div>
+  </div>
+
+  <!-- Log Section -->
+  <h3>🧾 Action Log / Alerts</h3>
+  <ul id="action-log" class="log-box">
+    <li><span class="timestamp">[00:00:00]</span> System initializing...</li>
+  </ul>
+</section>
+       
+<section id="map-section">
+  <h2>🌡️ Real-Time Plant Health Heatmap</h2>
+  <div class="legend">
+    <span><span class="dot green"></span> Healthy (80–100%)</span>
+    <span><span class="dot yellow"></span> Moderate (50–79%)</span>
+    <span><span class="dot red"></span> Critical (0–49%)</span>
+  </div>
+
+  <div id="map-container"></div>
+  <p id="update-status">🔄 Data updating every 5 seconds...</p>
+</section>
+<!-- 💧 Resource Tracking Section -->
+<!-- 💧 Resource Tracking Section -->
+<section id="resource-tracking">
+  <h2>🌿 Resource Tracking Dashboard</h2>
+  
+  <div class="resource-grid">
+    <div class="resource-card usage">
+      <h3>Pesticide Usage</h3>
+      <p class="value" id="usage-value">0 L</p>
+      <p class="percent">Used: <span id="usage-percent">0%</span></p>
+    </div>
+
+    <div class="resource-card savings">
+      <h3>Cost Savings</h3>
+      <p class="value" id="savings-value">₹0</p>
+      <p class="percent">Saved: <span id="savings-percent">0%</span></p>
+    </div>
+
+    <div class="resource-card efficiency">
+      <h3>System Efficiency</h3>
+      <p class="value" id="efficiency-value">0%</p>
+      <p class="percent">Target: 90%</p>
+    </div>
+  </div>
+
+  <p id="resource-update">Last updated: just now</p>
+</section>
+
+<!-- 🧬 AI Health Analysis Panel -->
+<section id="ai-health">
+  <h2>🧬 AI Health Analysis</h2>
+  <div class="ai-container">
+    <!-- Disease Distribution Chart -->
+    <div class="chart-card">
+      <h4>Disease Type Distribution</h4>
+      <div class="chart-wrapper">
+        <canvas id="diseaseChart"></canvas>
+      </div>
+    </div>
+
+    <!-- AI Prediction Panel -->
+    <div class="insight-card">
+      <h4>AI Prediction Insight</h4>
+      <p id="risk-area">Next Risk Area: <strong>--</strong></p>
+      <p id="risk-type">Predicted Disease: <strong>--</strong></p>
+      <p id="risk-confidence">Confidence: <strong>--%</strong></p>
+      <div class="confidence-bar">
+        <div id="confidence-fill"></div>
+      </div>
+      <p id="ai-summary" class="ai-summary-text">Analyzing data...</p>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+        <div class="graph">
+          <h1 class="graph-h1">Data Analysis With Graph</h1>
+          <section id="graph-analysis">
+            <div class="graph-box">
+              <h2>📈 Sensor Data Trends</h2>
+              <canvas id="sensorChart"></canvas>
+            </div>
+
+            <div class="graph-box">
+              <h2>📊 Sensor Data Histogram</h2>
+              <canvas id="histogramChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Camera Stream Section -->
+          <section id="disease-detect"  class="py-16 bg-gradient-to-b from-green-50 to-white text-center px-6">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-green-800 flex items-center justify-center gap-2 mb-8">🪴 Plant Disease Detection</h2>
+            <form id="diseaseForm"     class="max-w-md mx-auto bg-white shadow-lg border border-green-100 rounded-xl p-8 hover:shadow-2xl transition-all duration-300"
+>
+              <input type="file" id="plantImage"  class="block w-full text-sm text-gray-600 
+             file:mr-4 file:py-3 file:px-5
+             file:rounded-md file:border-0
+             file:text-sm file:font-semibold
+             file:bg-green-700 file:text-white
+             hover:file:bg-green-800 cursor-pointer
+             border border-gray-300 rounded-md
+             focus:outline-none focus:ring-2 focus:ring-green-500" accept="image/*" required />
+              <button type="submit"       class="mt-6 w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 shadow-md hover:shadow-lg"
+>Predict</button>
+            </form>
+            <div id="predictionResult" ></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <elevenlabs-convai
+      agent-id="agent_4101k5xt5e14echrka1x2bw29f28"
+    ></elevenlabs-convai>
+    <script
+      src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+      async
+      type="text/javascript"
+    ></script>
+   <section class="py-10 bg-gray-50 sm:pt-16 lg:pt-24">
+  <div class="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
+    <div class="grid grid-cols-2 md:col-span-3 lg:grid-cols-6 gap-y-16 gap-x-12">
+
+      <!-- Logo & About -->
+      <div class="col-span-2 md:col-span-3 lg:col-span-2 lg:pr-8">
+        <h1 class="text-4xl font-extrabold text-green-800 tracking-wide">
+          Dr.<span class="text-lime-600">Kissan</span>
+        </h1>
+
+        <p class="text-base leading-relaxed text-gray-600 mt-7">
+          Empowering farmers through smart and sustainable technology.
+          Dr. Kissan bridges innovation with agriculture to make farming
+          more efficient and data-driven.
+        </p>
+
+        <!-- Social Icons -->
+        <ul class="flex items-center space-x-3 mt-9">
+          <li>
+            <a href="#" class="flex items-center justify-center text-white bg-gray-800 rounded-full w-8 h-8 hover:bg-blue-600 transition-all duration-200">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19.633 7.997c.013.175.013.349.013.523 0 5.325-4.053 11.461-11.46 11.461-2.282 0-4.402-.661-6.186-1.809.324.037.636.05.973.05a8.07 8.07 0 0 0 5.001-1.721A4.036 4.036 0 0 1 4.19 13.78a4.04 4.04 0 0 0 1.819.511A4.022 4.022 0 0 1 4.213 10.93c0-.748.199-1.434.548-2.032a11.457 11.457 0 0 0 8.306 4.215 4.028 4.028 0 0 1 4.028-4.028c1.16 0 2.207.486 2.943 1.272a7.957 7.957 0 0 0 2.556-.973 4.02 4.02 0 0 1-1.771 2.22 8.073 8.073 0 0 0 2.319-.624 8.645 8.645 0 0 1-2.019 2.083z"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center justify-center text-white bg-gray-800 rounded-full w-8 h-8 hover:bg-blue-600 transition-all duration-200">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M13.397 20.997v-8.196h2.765l.411-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684V3.127A22.336 22.336 0 0 0 14.201 3c-2.444 0-4.122 1.492-4.122 4.231v2.355H7.332v3.209h2.753v8.202h3.312z"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center justify-center text-white bg-gray-800 rounded-full w-8 h-8 hover:bg-blue-600 transition-all duration-200">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.999 7.377a4.623 4.623 0 1 0 0 9.248 4.623 4.623 0 0 0 0-9.248zm0 7.627a3.004 3.004 0 1 1 0-6.008 3.004 3.004 0 0 1 0 6.008z"/>
+                <circle cx="16.806" cy="7.207" r="1.078"/>
+                <path d="M20.533 6.111A4.605 4.605 0 0 0 17.9 3.479a6.606 6.606 0 0 0-2.186-.42c-.963-.042-1.268-.054-3.71-.054s-2.755 0-3.71.054a6.554 6.554 0 0 0-2.184.42 4.6 4.6 0 0 0-2.633 2.632 6.585 6.585 0 0 0-.419 2.186c-.043.962-.056 1.267-.056 3.71 0 2.442 0 2.753.056 3.71.015.748.156 1.486.419 2.187a4.61 4.61 0 0 0 2.634 2.632 6.584 6.584 0 0 0 2.185.45c.963.042 1.268.055 3.71.055s2.755 0 3.71-.055a6.615 6.615 0 0 0 2.186-.419 4.613 4.613 0 0 0 2.633-2.633c.263-.7.404-1.438.419-2.186.043-.962.056-1.267.056-3.71s0-2.753-.056-3.71a6.581 6.581 0 0 0-.421-2.217z"/>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <p class="text-sm font-semibold tracking-widest text-gray-400 uppercase">Company</p>
+        <ul class="mt-6 space-y-4">
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">About</a></li>
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">Features</a></li>
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">Works</a></li>
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">Career</a></li>
+        </ul>
+      </div>
+
+      <!-- Help -->
+      <div>
+        <p class="text-sm font-semibold tracking-widest text-gray-400 uppercase">Help</p>
+        <ul class="mt-6 space-y-4">
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">Customer Support</a></li>
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">Delivery Details</a></li>
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">Terms & Conditions</a></li>
+          <li><a href="#" class="flex text-base text-black transition-all duration-200 hover:text-green-700">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="col-span-2 md:col-span-1 lg:col-span-2 lg:pl-8">
+        <p class="text-sm font-semibold tracking-widest text-gray-400 uppercase">Subscribe to Newsletter</p>
+        <form class="mt-6">
+          <input type="email" placeholder="Enter your email" class="block w-full p-4 text-black placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:border-green-700" />
+          <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 mt-3 font-semibold text-white bg-green-700 rounded-md hover:bg-green-800 transition-all duration-200">
+            Subscribe
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <hr class="mt-16 mb-10 border-gray-200" />
+
+    <p class="text-sm text-center text-gray-600">
+      © 2025 Dr. Kissan. All Rights Reserved.
+    </p>
+  </div>
+</section>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  const toggleBtn = document.getElementById("toggleCamera");
+  const cameraDiv = document.getElementById("cameraContainer");
+  const cameraImg = document.getElementById("esp32cam");
+  const canvas = document.getElementById("snapshotCanvas");
+  const ctx = canvas.getContext("2d");
+  const resultDiv = document.getElementById("predictionResult1");
+
+  let captureInterval = null;
+
+  toggleBtn.addEventListener("click", () => {
+    if (cameraDiv.style.display === "none") {
+      cameraDiv.style.display = "block";
+      toggleBtn.textContent = "Hide Camera";
+      startAutoCapture();
+    } else {
+      cameraDiv.style.display = "none";
+      toggleBtn.textContent = "Show Camera";
+      stopAutoCapture();
+    }
+  });
+
+  function startAutoCapture() {
+    captureInterval = setInterval(async () => {
+
+      console.log("Captured at:", new Date().toLocaleTimeString());  // ✔ TEST
+
+      ctx.drawImage(cameraImg, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL("image/jpeg");
+
+      try {
+        const response = await fetch("/predict_base64", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imageData }),
+        });
+
+        const result = await response.json();
+        resultDiv.innerHTML = `🌿 Disease: <span style="color:green">${result.prediction}</span>`;
+      } catch (error) {
+        console.error(error);
+        resultDiv.textContent = "⚠️ Error detecting disease.";
+      }
+    }, 3000);
+  }
+
+  function stopAutoCapture() {
+    clearInterval(captureInterval);
+  }
+
+});
+</script>
+
+
+    <script>
+      document
+        .getElementById("diseaseForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const fileInput = document.getElementById("plantImage");
+          const file = fileInput.files[0];
+          const formData = new FormData();
+          formData.append("file", file);
+
+          try {
+            const res = await fetch("/predict", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+            const resultDiv = document.getElementById("predictionResult");
+
+            // Fetch latest sensor data
+            const sensorRes = await fetch("/api/data");
+            const sensors = await sensorRes.json();
+
+            const normal = {
+              pH: [5.5, 7.5],
+              soil_moisture: [30, 60],
+              temperature: [15, 30],
+              humidity: [30, 70],
+              iaq: [0, 100],
+              co2: [300, 1000],
+            };
+
+            function getClassColor(value, range) {
+              if (value < range[0] || value > range[1]) return "danger";
+              const margin = (range[1] - range[0]) * 0.2;
+              if (value < range[0] + margin || value > range[1] - margin)
+                return "warn";
+              return "ok";
+            }
+
+            // Build the prediction + sensor card
+            resultDiv.innerHTML = `
+<div id="diseasePredictionContainer" class="disease-container">
+
+  <!-- Left: Disease + Sensor Data -->
+  <div class="prediction-card">
+    <div id="pdata">
+      <p><strong>Prediction:</strong> ${data.prediction}</p>
+      <p><strong>Confidence:</strong> ${data.confidence}%</p>
+      <img src="${data.image_path}" alt="Plant Image" width="200" />
+    </div>
+
+    <div id="sdata">
+      <h4>🌿 Sensor Data</h4>
+      <ul>
+        <li class="${getClassColor(sensors.pH, normal.pH)}">pH: ${
+              sensors.pH
+            }</li>
+        <li class="${getClassColor(
+          sensors.soil_moisture,
+          normal.soil_moisture
+        )}">
+          Soil Moisture: ${sensors.soil_moisture}%
+        </li>
+        <li class="${getClassColor(sensors.temperature, normal.temperature)}">
+          Temperature: ${sensors.temperature}°C
+        </li>
+        <li class="${getClassColor(sensors.humidity, normal.humidity)}">
+          Humidity: ${sensors.humidity}%
+        </li>
+        <li class="${getClassColor(sensors.iaq, normal.iaq)}">IAQ: ${
+              sensors.iaq
+            }</li>
+        <li class="${getClassColor(sensors.co2, normal.co2)}">CO₂: ${
+              sensors.co2
+            } ppm</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Right: Recommendations -->
+  <div id="recommendations" class="recommendation-card">
+    <h4>💡 Recommended Actions</h4>
+    <ul id="recommendationList"></ul>
+  </div>
+
+</div>
+`;
+
+            // Populate recommendations
+            const recommendationList =
+              document.getElementById("recommendationList");
+            recommendationList.innerHTML = "";
+
+            // Sensor-based
+            if (sensors.soil_moisture < normal.soil_moisture[0])
+              recommendationList.innerHTML +=
+                "<li>💧 Soil is dry, irrigate plants.</li>";
+            if (sensors.soil_moisture > normal.soil_moisture[1])
+              recommendationList.innerHTML +=
+                "<li>🚱 Soil is waterlogged, improve drainage.</li>";
+            if (sensors.pH < normal.pH[0])
+              recommendationList.innerHTML +=
+                "<li>🧂 Soil acidic, add lime.</li>";
+            if (sensors.pH > normal.pH[1])
+              recommendationList.innerHTML +=
+                "<li>🧂 Soil alkaline, add sulfur.</li>";
+            if (sensors.temperature > normal.temperature[1])
+              recommendationList.innerHTML +=
+                "<li>🌡️ High temperature, provide shade/ventilation.</li>";
+            if (sensors.humidity > normal.humidity[1])
+              recommendationList.innerHTML +=
+                "<li>💨 High humidity, improve airflow.</li>";
+
+            // Disease-based
+            if (data.prediction.toLowerCase().includes("blight"))
+              recommendationList.innerHTML +=
+                "<li>🧴 Detected blight, apply fungicide.</li>";
+            if (data.prediction.toLowerCase().includes("healthy"))
+              recommendationList.innerHTML +=
+                "<li>✅ Plant healthy, maintain care.</li>";
+          } catch (err) {
+            console.error("Error:", err);
+          }
+        });
+    </script>
+   
+   <script>
+    // --- Dynamic Rover Status ---
+const roverStatusData = {
+  location: "Row 5, Plant 12 (34.05, -118.25)",
+  battery_level: 45,
+  solar_status: "Charging",
+  last_action: "Sprayed 15ml, Moderate Blight (Row 5)",
+  action_log: [
+    { time: "06:45:00", message: "Rover deployed to Field A, starting Row 1.", type: "alert-system" },
+    { time: "06:50:15", message: "Moderate pest detected in Row 3. Sprayed 30 ml fungicide.", type: "alert-success" },
+    { time: "07:05:30", message: "Severe bacterial infection in Row 4. Laser sterilization applied.", type: "alert-warn" },
+    { time: "07:15:45", message: "Infection detected in Row 8. Infected part removed.", type: "alert-danger" },
+    { time: "07:30:00", message: "System check: Battery 45%. Solar charging active.", type: "alert-system" },
+  ]
+};
+
+function renderRoverStatus(data) {
+  document.getElementById("gps-coords").innerText = data.location;
+  document.getElementById("last-action").innerText = data.last_action;
+  
+  const batteryCard = document.getElementById("card-battery");
+  const batteryFill = document.getElementById("battery-fill");
+  const batteryIcon = document.getElementById("battery-icon");
+  const level = data.battery_level;
+
+  // Battery percentage & color
+  batteryFill.style.width = `${level}%`;
+  if (level < 25) {
+    batteryFill.style.background = "#ef5350";
+    batteryIcon.className = "fas fa-battery-empty";
+  } else if (level < 50) {
+    batteryFill.style.background = "#ffc107";
+    batteryIcon.className = "fas fa-battery-quarter";
+  } else if (data.solar_status === "Charging") {
+    batteryFill.style.background = "#42a5f5";
+    batteryIcon.className = "fas fa-battery-half";
+  } else {
+    batteryFill.style.background = "#26a69a";
+    batteryIcon.className = "fas fa-battery-full";
+  }
+
+  document.getElementById("battery-level").innerText = level;
+  document.getElementById("solar-status").innerText = data.solar_status;
+
+  // Update Log
+  const logBox = document.getElementById("action-log");
+  logBox.innerHTML = "";
+  data.action_log.slice().reverse().forEach(entry => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="timestamp">[${entry.time}]</span> <span class="${entry.type}">${entry.message}</span>`;
+    logBox.appendChild(li);
+  });
+}
+
+// Simulate updates every 10 seconds
+document.addEventListener("DOMContentLoaded", () => {
+  renderRoverStatus(roverStatusData);
+  setInterval(() => {
+    roverStatusData.battery_level = Math.max(10, Math.min(100, roverStatusData.battery_level + (Math.random() * 15 - 5)));
+    roverStatusData.action_log.push({
+      time: new Date().toLocaleTimeString(),
+      message: "Routine check completed successfully.",
+      type: "alert-success"
+    });
+    renderRoverStatus(roverStatusData);
+  }, 10000);
+});
+
+   </script>
+   <script>function generateHeatmap() {
+  const map = document.getElementById("map-container");
+  map.innerHTML = "";
+
+  const tooltip = document.createElement("div");
+  tooltip.classList.add("tooltip");
+  map.appendChild(tooltip);
+
+  // Generate 30 plants
+  for (let i = 0; i < 30; i++) {
+    const point = document.createElement("div");
+    point.classList.add("heat-point");
+
+    // Random position (field layout)
+    point.style.left = Math.random() * 95 + "%";
+    point.style.top = Math.random() * 90 + "%";
+
+    // Random health % and color
+    const health = Math.floor(Math.random() * 101);
+    let color;
+    if (health >= 80) color = "#22c55e";
+    else if (health >= 50) color = "#eab308";
+    else color = "#ef4444";
+
+    point.style.background = color;
+
+    const plantNo = i + 1;
+    const rowNo = Math.ceil(plantNo / 5);
+
+    point.dataset.info = `🌿 Plant #${plantNo} — Row ${rowNo}\nHealth: ${health}%`;
+
+    // Tooltip hover logic
+    point.addEventListener("mouseenter", (e) => {
+      tooltip.textContent = e.target.dataset.info;
+      tooltip.style.left = `calc(${e.target.style.left} + 10px)`;
+      tooltip.style.top = `calc(${e.target.style.top} - 10px)`;
+      tooltip.style.opacity = 1;
+    });
+
+    point.addEventListener("mouseleave", () => {
+      tooltip.style.opacity = 0;
+    });
+
+    map.appendChild(point);
+  }
+}
+
+// Auto update every 5 seconds
+generateHeatmap();
+setInterval(() => {
+  generateHeatmap();
+}, 5000);
+</script>
+
+<script>
+  // --- Resource Tracking Simulation ---
+document.addEventListener("DOMContentLoaded", () => {
+  const usageVal = document.getElementById("usage-value");
+  const savingsVal = document.getElementById("savings-value");
+  const efficiencyVal = document.getElementById("efficiency-value");
+  const usagePercent = document.getElementById("usage-percent");
+  const savingsPercent = document.getElementById("savings-percent");
+  const updateText = document.getElementById("resource-update");
+
+  let usage = 20, savings = 500, efficiency = 85;
+
+  function updateResourceData() {
+    // Simulate real-time fluctuation
+    usage += (Math.random() * 2 - 1);
+    savings += Math.random() * 20;
+    efficiency = Math.max(70, Math.min(95, efficiency + (Math.random() * 4 - 2)));
+
+    // Update values
+    usageVal.textContent = `${usage.toFixed(1)} L`;
+    savingsVal.textContent = `₹${savings.toFixed(0)}`;
+    efficiencyVal.textContent = `${efficiency.toFixed(1)}%`;
+
+    // Update percentage bars
+    usagePercent.textContent = `${Math.min((usage / 50) * 100, 100).toFixed(0)}%`;
+    savingsPercent.textContent = `${Math.min((savings / 1000) * 100, 100).toFixed(0)}%`;
+
+    // Add pulse effect
+    document.querySelectorAll(".resource-card").forEach(card => {
+      card.classList.add("updated");
+      setTimeout(() => card.classList.remove("updated"), 500);
+    });
+
+    // Update timestamp
+    updateText.textContent = "Last updated: " + new Date().toLocaleTimeString();
+  }
+
+  updateResourceData();
+  setInterval(updateResourceData, 5000); // auto update every 5s
+});
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const ctx = document.getElementById("diseaseChart").getContext("2d");
+
+  const diseaseData = {
+    labels: ["Fungal", "Bacterial", "Viral", "Nutrient Deficiency", "Healthy"],
+    datasets: [{
+      label: "Detected Cases",
+      data: [35, 20, 10, 15, 20],
+      backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#a855f7", "#22c55e"],
+      borderWidth: 1
+    }]
+  };
+
+  const diseaseChart = new Chart(ctx, {
+    type: "pie",
+    data: diseaseData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { color: "#333", font: { size: 14 } }
+        }
+      }
+    }
+  });
+
+  const predictions = [
+    { area: "Row 8 (Zone B)", type: "Fungal Infection", confidence: 78 },
+    { area: "Row 3 (Zone C)", type: "Bacterial Wilt", confidence: 62 },
+    { area: "Row 10 (Zone D)", type: "Viral Spots", confidence: 85 },
+    { area: "Row 2 (Zone A)", type: "Nutrient Deficiency", confidence: 55 },
+  ];
+
+  const riskArea = document.getElementById("risk-area");
+  const riskType = document.getElementById("risk-type");
+  const riskConfidence = document.getElementById("risk-confidence");
+  const confidenceFill = document.getElementById("confidence-fill");
+  const aiSummary = document.getElementById("ai-summary");
+
+  function updateInsight() {
+    const randomPrediction = predictions[Math.floor(Math.random() * predictions.length)];
+    const { area, type, confidence } = randomPrediction;
+
+    riskArea.innerHTML = `Next Risk Area: <strong>${area}</strong>`;
+    riskType.innerHTML = `Predicted Disease: <strong>${type}</strong>`;
+    riskConfidence.innerHTML = `Confidence: <strong>${confidence}%</strong>`;
+    confidenceFill.style.width = `${confidence}%`;
+    aiSummary.textContent = `High risk of ${type.toLowerCase()} expected in ${area.split(' ')[0]} within next 2 hours (${confidence}% confidence).`;
+  }
+
+  updateInsight();
+  setInterval(updateInsight, 7000);
+});
+</script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
