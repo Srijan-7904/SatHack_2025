@@ -7,12 +7,12 @@ It is built using a React frontend and a Flask backend, communicating with an ES
 🏗️ Project Structure
 📦 Intelligent-Rover-System/
 │
-├── 🌐 ochi/                         # React Frontend
+├── 🌐 ochi/                       # React Frontend
 │   ├── src/
 │   ├── public/
 │   └── vite.config.js
 │
-├── 🔥 intelligent_rover_dashboard/  # Flask Backend
+├── 🔥 intelligent_rover_dashboard/ # Flask Backend
 │   ├── app.py
 │   ├── model/plant_model.h5
 │   ├── templates/
@@ -39,13 +39,13 @@ Backend (Flask – intelligent_rover_dashboard)
 
 Flask + CORS
 
-TensorFlow/Keras (Plant Disease Model)
+TensorFlow/Keras
 
 Base64 Image Processing
 
 ESP32 Camera Streaming Proxy
 
-REST API for React
+REST API
 
 Real-time sensor processing
 
@@ -79,8 +79,7 @@ npm install
 npm run dev
 
 
-Your app will run at:
-
+Your frontend runs at:
 👉 http://localhost:5173
 
 🔥 Backend (Flask — intelligent_rover_dashboard)
@@ -89,14 +88,23 @@ cd intelligent_rover_dashboard
 
 📦 Create Virtual Environment
 python -m venv venv
-source venv/bin/activate   # Linux/macOS
-venv\Scripts\activate      # Windows
+
+Activate environment
+
+Windows:
+
+venv\Scripts\activate
+
+
+Linux/macOS:
+
+source venv/bin/activate
 
 📦 Install Requirements
 pip install -r requirements.txt
 
 
-(If requirements.txt is missing, install manually:)
+If missing:
 
 pip install flask flask-cors tensorflow pillow requests numpy
 
@@ -104,64 +112,71 @@ pip install flask flask-cors tensorflow pillow requests numpy
 python app.py
 
 
-Backend starts at:
-
+Backend runs at:
 👉 http://localhost:5000
 
 🔗 API Endpoints
 Method	Endpoint	Description
 GET	/	Dashboard UI
 GET	/api/data	Live sensor data from ESP32
-GET	/camera_feed	Proxied ESP32 camera stream
-POST	/predict	Disease detection from uploaded image
-POST	/predict_base64	Disease detection from live camera
-GET	/latest_prediction	Retrieve latest ML output
+GET	/camera_feed	ESP32 camera stream
+POST	/predict	Disease detection (file upload)
+POST	/predict_base64	Disease detection (camera)
+GET	/latest_prediction	Last ML output
 🌿 Key Features
 ✅ Live Sensor Dashboard
 
-Real-time pH, moisture, humidity, temp
+Real-time pH
 
-CO₂ & air quality
+Soil moisture
+
+Temperature
+
+Humidity
+
+IAQ
+
+CO₂
 
 Line + histogram charts
 
 ✅ AI Disease Detection
 
-Upload image OR auto-capture from ESP32-CAM
+Upload image or auto-capture
 
-Model trained on Potato Plant Dataset
-
-Supports Early Blight, Late Blight, Healthy
+Model supports: Early Blight, Late Blight, Healthy
 
 ✅ ESP32 Camera Streaming
 
-Live camera feed
+Live video
 
-Auto snapshot every 3 seconds
+Snapshot every 3 seconds
 
 ✅ Smart Insights
 
-Alerts: moisture low / temp high / humidity high
+Suggestions based on sensor data
 
-AI-generated plant health suggestions
+Alerts for abnormal conditions
 
 ✅ Rover Monitoring
 
-Real-time rover location
+Battery
 
-Battery & solar charging status
+Solar charging
 
-Last treatment performed
+Last action performed
 
-📸 Screenshots (Add Your Images Here)
-Add images like:
+📸 Screenshots
+
+(Add your images like below:)
+
 ![Dashboard](screenshots/dashboard.png)
-![Camera](screenshots/camera-feed.png)
+![Camera](screenshots/camera.png)
 
 🤝 Contributing
 
 Pull requests are welcome!
-Feel free to open issues for bugs or feature requests.
+Feel free to open issues for bugs or new features.
 
 📜 License
 
@@ -170,4 +185,4 @@ This project is licensed under the MIT License.
 🙌 Credits
 
 Developed by Srijan Jaiswal
-Under project: Dr. Kissan — Smart Agricultural Assistance System
+Project: Dr. Kissan — Smart Agricultural Assistance System
